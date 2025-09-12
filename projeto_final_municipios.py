@@ -65,8 +65,6 @@ ibge_municipio = ibge_municipio[[
     "SK_MUNICIPIO", "CD_MUNICIPIO", "SK_ESTADO", "NM_MUNICIPIO", "DT_CARGA"
 ]]
 
-ibge_municipio.rename(columns={"SK_ESTADO": "CD_ESTADO"}, inplace=True)
-
 ibge_estado["NM_REGIAO"] = ibge_estado["NM_ESTADO"].map(mapa_regiao)
 
 ibge_estado = ibge_estado.merge(
@@ -77,10 +75,7 @@ ibge_estado = ibge_estado.merge(
 )
 ibge_regiao["DT_CARGA"] = datetime.now(br_tz).strftime("%d-%m-%Y %H:%M")
 
-ibge_estado.rename(columns={"SK_REGIAO": "CD_REGIAO"}, inplace=True)
-ibge_estado = ibge_estado[["SK_ESTADO", "CD_ESTADO", "NM_ESTADO", "CD_REGIAO", "DT_CARGA"]]
-
-ibge_regiao
+ibge_estado = ibge_estado[["SK_ESTADO", "CD_ESTADO", "NM_ESTADO", "SK_REGIAO", "DT_CARGA"]]
 
 con = sqlite3.connect('DW.db')
 cur = con.cursor()
@@ -95,22 +90,22 @@ for _, row in ibge_regiao.iterrows():
 
 for _, row in ibge_estado.iterrows():
     cur.execute("""
-        INSERT INTO DWCD_ESTADO (SK_ESTADO, CD_ESTADO, NM_ESTADO, CD_REGIAO, DT_CARGA)
+        INSERT INTO DWCD_ESTADO (SK_ESTADO, CD_ESTADO, NM_ESTADO, SK_REGIAO, DT_CARGA)
         VALUES (?, ?, ?, ?, ?)
         ON CONFLICT(SK_ESTADO) DO UPDATE SET
             CD_ESTADO = excluded.CD_ESTADO,
             NM_ESTADO = excluded.NM_ESTADO,
-            CD_REGIAO = excluded.CD_REGIAO,
+            SK_REGIAO = excluded.SK_REGIAO,
             DT_CARGA = excluded.DT_CARGA;
     """, tuple(row))
 
 for _, row in ibge_municipio.iterrows():
     cur.execute("""
-        INSERT INTO DWCD_MUNICIPO (SK_MUNICIPIO, CD_MUNICIPIO, CD_ESTADO, NM_MUNICIPIO, DT_CARGA)
+        INSERT INTO DWCD_MUNICIPO (SK_MUNICIPIO, CD_MUNICIPIO, SK_ESTADO, NM_MUNICIPIO, DT_CARGA)
         VALUES (?, ?, ?, ?, ?)
         ON CONFLICT(SK_MUNICIPIO) DO UPDATE SET
             CD_MUNICIPIO = excluded.CD_MUNICIPIO,
-            CD_ESTADO = excluded.CD_ESTADO,
+            SK_ESTADO = excluded.SK_ESTADO,
             NM_MUNICIPIO = excluded.NM_MUNICIPIO,
             DT_CARGA = excluded.DT_CARGA;
     """, tuple(row))
