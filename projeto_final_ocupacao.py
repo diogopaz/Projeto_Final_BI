@@ -20,7 +20,7 @@ def carregar_dados_merge(csv_path, db_path):
         print(f"Ocorreu um erro ao ler o arquivo CSV: {e}")
         return
 
-    df_origem.rename(columns={'CODIGO': 'CD_OCUPACAO', 'TITULO': 'DS_TITULO'}, inplace=True)
+    df_origem.rename(columns={'CODIGO': 'CD_OCUP', 'TITULO': 'DS_OCUP'}, inplace=True)
     br_tz = timezone(timedelta(hours=-3))
     data_carga_atual = datetime.now(br_tz).strftime('%Y-%m-%d %H:%M:%S')
     df_origem['DT_CARGA'] = data_carga_atual
@@ -29,7 +29,7 @@ def carregar_dados_merge(csv_path, db_path):
     print(df_origem.head())
 
     # --- 2. LÓGICA DE CARGA MERGE ---
-    table_name = "DWCD_OCUPACAO"
+    table_name = "DWCD_OCUP"
     conn = None
     try:
         conn = sqlite3.connect(db_path)
@@ -39,9 +39,9 @@ def carregar_dados_merge(csv_path, db_path):
         cursor.execute(
             f"""
             CREATE TABLE IF NOT EXISTS "{table_name}" (
-                "SK_OCUPACAO" INTEGER NOT NULL UNIQUE,
-                "CD_OCUPACAO" INTEGER NOT NULL UNIQUE,
-                "DS_TITULO" VARCHAR NOT NULL,
+                "SK_OCUP" INTEGER NOT NULL UNIQUE,
+                "CD_OCUP" INTEGER NOT NULL UNIQUE,
+                "DS_OCUP" VARCHAR NOT NULL,
                 "DT_CARGA" DATETIME,
                 PRIMARY KEY("SK_OCUPACAO" AUTOINCREMENT)
             );
@@ -50,35 +50,35 @@ def carregar_dados_merge(csv_path, db_path):
         conn.commit()
 
         # Lê os dados existentes no DW
-        df_destino = pd.read_sql(f'SELECT CD_OCUPACAO, DS_TITULO FROM {table_name}', conn)
+        df_destino = pd.read_sql(f'SELECT CD_OCUP, DS_OCUP FROM {table_name}', conn)
 
         # Junta (merge) os dataframes de origem e destino para comparação
         df_merged = pd.merge(
             df_origem,
             df_destino,
-            on='CD_OCUPACAO',
+            on='CD_OCUP',
             how='left',
             suffixes=('_origem', '_destino')
         )
 
         # --- INSERTS: Filtra os registros que são novos ---
-        df_para_inserir = df_merged[df_merged['DS_TITULO_destino'].isnull()]
-        dados_para_inserir = df_para_inserir[['CD_OCUPACAO', 'DS_TITULO_origem', 'DT_CARGA']].to_records(index=False).tolist()
+        df_para_inserir = df_merged[df_merged['DS_OCUP_destino'].isnull()]
+        dados_para_inserir = df_para_inserir[['CD_OCUP', 'DS_OCUP_origem', 'DT_CARGA']].to_records(index=False).tolist()
 
         if dados_para_inserir:
-            sql_insert = f'INSERT INTO "{table_name}" (CD_OCUPACAO, DS_TITULO, DT_CARGA) VALUES (?, ?, ?)'
+            sql_insert = f'INSERT INTO "{table_name}" (CD_OCUP, DS_OCUP, DT_CARGA) VALUES (?, ?, ?)'
             cursor.executemany(sql_insert, dados_para_inserir)
             print(f"\n{len(dados_para_inserir)} novos registros inseridos.")
         else:
             print("\nNenhum registro novo para inserir.")
 
         # --- UPDATES: Filtra registros existentes que mudaram ---
-        df_para_atualizar = df_merged.dropna(subset=['DS_TITULO_destino'])
-        df_para_atualizar = df_para_atualizar[df_para_atualizar['DS_TITULO_origem'] != df_para_atualizar['DS_TITULO_destino']]
-        dados_para_atualizar = df_para_atualizar[['DS_TITULO_origem', 'DT_CARGA', 'CD_OCUPACAO']].to_records(index=False).tolist()
+        df_para_atualizar = df_merged.dropna(subset=['DS_OCUP_destino'])
+        df_para_atualizar = df_para_atualizar[df_para_atualizar['DS_OCUP_origem'] != df_para_atualizar['DS_TITULO_destino']]
+        dados_para_atualizar = df_para_atualizar[['DS_OCUP_origem', 'DT_CARGA', 'CD_OCUP']].to_records(index=False).tolist()
 
         if dados_para_atualizar:
-            sql_update = f'UPDATE "{table_name}" SET DS_TITULO = ?, DT_CARGA = ? WHERE CD_OCUPACAO = ?'
+            sql_update = f'UPDATE "{table_name}" SET DS_OCUP = ?, DT_CARGA = ? WHERE CD_OCUP = ?'
             cursor.executemany(sql_update, dados_para_atualizar)
             print(f"{len(dados_para_atualizar)} registros atualizados.")
         else:
@@ -97,7 +97,7 @@ def carregar_dados_merge(csv_path, db_path):
     # --- 3. VERIFICAÇÃO FINAL ---
     try:
         conn_verify = sqlite3.connect(db_path)
-        df_verify = pd.read_sql(f'SELECT * FROM {table_name} ORDER BY SK_OCUPACAO DESC LIMIT 5', conn_verify)
+        df_verify = pd.read_sql(f'SELECT * FROM {table_name} ORDER BY SK_OCUP DESC LIMIT 5', conn_verify)
         print("\n--- Verificação dos últimos dados carregados no banco ---")
         print(df_verify)
         conn_verify.close()

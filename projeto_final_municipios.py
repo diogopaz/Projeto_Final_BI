@@ -101,7 +101,7 @@ for _, row in ibge_estado.iterrows():
 
 for _, row in ibge_municipio.iterrows():
     cur.execute("""
-        INSERT INTO DWCD_MUNICIPO (SK_MUNICIPIO, CD_MUNICIPIO, SK_ESTADO, NM_MUNICIPIO, DT_CARGA)
+        INSERT INTO DWCD_MUNICIPIO (SK_MUNICIPIO, CD_MUNICIPIO, SK_ESTADO, NM_MUNICIPIO, DT_CARGA)
         VALUES (?, ?, ?, ?, ?)
         ON CONFLICT(SK_MUNICIPIO) DO UPDATE SET
             CD_MUNICIPIO = excluded.CD_MUNICIPIO,
