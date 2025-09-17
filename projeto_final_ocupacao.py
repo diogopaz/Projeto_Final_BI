@@ -74,7 +74,7 @@ def carregar_dados_merge(csv_path, db_path):
 
         # --- UPDATES: Filtra registros existentes que mudaram ---
         df_para_atualizar = df_merged.dropna(subset=['DS_OCUP_destino'])
-        df_para_atualizar = df_para_atualizar[df_para_atualizar['DS_OCUP_origem'] != df_para_atualizar['DS_TITULO_destino']]
+        df_para_atualizar = df_para_atualizar[df_para_atualizar['DS_OCUP_origem'] != df_para_atualizar['DS_OCUP_destino']]
         dados_para_atualizar = df_para_atualizar[['DS_OCUP_origem', 'DT_CARGA', 'CD_OCUP']].to_records(index=False).tolist()
 
         if dados_para_atualizar:
