@@ -5,7 +5,6 @@ import pandas as pd
 def carga_manual_circobito(db_path):
 
     dados_circobito = [
-        (-1, 'Não Informado'),
         (1, 'Acidente',),
         (2, 'Suicídio'),
         (3, 'Homicídio'),
@@ -40,6 +39,7 @@ def carga_manual_circobito(db_path):
         # inserindo valores na tabela
         sql_insert = f'INSERT OR IGNORE INTO "{table_name}" (CD_CIRCOBITO, DS_CIRCOBITO, DT_CARGA) VALUES (?, ?, ?)'
         cursor.executemany(sql_insert, dados_para_inserir)
+        cursor.execute(f'INSERT OR IGNORE INTO {table_name} (SK_CIRCOBITO, CD_CIRCOBITO, DS_CIRCOBITO, DT_CARGA) VALUES (-1, -1, "Não Informado", "28-11-1970 00:00")')
         conn.commit()
 
     except sqlite3.Error as e:

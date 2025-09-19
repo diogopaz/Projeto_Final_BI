@@ -3,16 +3,15 @@ import sqlite3
 from datetime import datetime, timezone, timedelta
 
 def carga_manual_estciv(db_path):
-    
+
     dados_estciv = [
-        (-1, 'Não Informado'),
         (1, 'Solteiro'),
         (2, 'Casado'),
         (3, 'Viúvo'),
         (4, 'Separado Judicialmente'),
         (5, 'União Estável')
     ]
-    
+
     table_name = "DWCD_ESTCIV"
     br_tz = timezone(timedelta(hours=-3))
     data_carga_atual = datetime.now(br_tz).strftime('%d-%m-%Y %H:%M')
@@ -42,6 +41,7 @@ def carga_manual_estciv(db_path):
         # inserindo valores na tabela
         sql_insert = f'INSERT OR IGNORE INTO "{table_name}" (CD_ESTCIV, DS_ESTCIV, DT_CARGA) VALUES (?, ?, ?)'
         cursor.executemany(sql_insert, dados_para_inserir)
+        cursor.execute(f"INSERT OR IGNORE INTO {table_name} (SK_ESTCIV, CD_ESTCIV, DS_ESTCIV, DT_CARGA) VALUES (-1, -1, 'Não Informado', '28-11-1970 00:00')")
         conn.commit()
 
     except sqlite3.Error as e:

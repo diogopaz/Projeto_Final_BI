@@ -40,5 +40,19 @@ for _, row in df_escolaridade.iterrows():
             DT_CARGA = excluded.DT_CARGA;
     """, tuple(row))
 
+cur.execute("INSERT INTO DWCD_ESCFAL (SK_ESCFAL, CD_ESCFAL, DS_ESCFAL, DT_CARGA) VALUES (-1, -1, 'Não Informado', '28-11-1970 00:00')")
+
 con.commit()
 con.close()
+
+
+try:
+    conn_verify = sqlite3.connect('DW.db')
+    df_verify = pd.read_sql(f'SELECT * FROM DWCD_ESCFAL', conn_verify)
+    print(f"\n--- Dados atuais na tabela DWCD_ESCFAL' ---")
+    print(df_verify)
+    conn_verify.close()
+except NameError:
+    print("\nPandas não importado. A verificação final não pode ser executada.")
+except Exception as e:
+    print(f"Erro ao verificar os dados: {e}")

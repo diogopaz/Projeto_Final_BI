@@ -1,14 +1,13 @@
 def carga_manual_racacor(db_path):
 
     dados_racacor = [
-        (-1, 'Não Informado'),
         (1, 'Branca'),
         (2, 'Preta'),
         (3, 'Amarela'),
         (4, 'Parda'),
         (5, 'Indígena')
     ]
-    
+
     table_name = "DWCD_RACACOR"
     br_tz = timezone(timedelta(hours=-3))
     data_carga_atual = datetime.now(br_tz).strftime('%d-%m-%Y %H:%M')
@@ -37,6 +36,7 @@ def carga_manual_racacor(db_path):
         # inserindo valores na tabela
         sql_insert = f'INSERT OR IGNORE INTO "{table_name}" (CD_RACACOR, DS_RACACOR, DT_CARGA) VALUES (?, ?, ?)'
         cursor.executemany(sql_insert, dados_para_inserir)
+        cursor.execute(f"INSERT OR IGNORE INTO {table_name} (SK_RACACOR, CD_RACACOR, DS_RACACOR, DT_CARGA) VALUES (-1, -1, 'Não Informado', '28-11-1970 00:00')")
         conn.commit()
 
         print("Carga concluída.")
