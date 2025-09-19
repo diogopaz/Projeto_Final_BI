@@ -22,7 +22,7 @@ def carregar_dados_merge(csv_path, db_path):
 
     df_origem.rename(columns={'CODIGO': 'CD_OCUP', 'TITULO': 'DS_OCUP'}, inplace=True)
     br_tz = timezone(timedelta(hours=-3))
-    data_carga_atual = datetime.now(br_tz).strftime('%Y-%m-%d %H:%M:%S')
+    data_carga_atual = datetime.now(br_tz).strftime('%d-%m-%Y %H:%M')
     df_origem['DT_CARGA'] = data_carga_atual
     
     print("--- DataFrame de Origem (Amostra) ---")
@@ -68,7 +68,7 @@ def carregar_dados_merge(csv_path, db_path):
         if dados_para_inserir:
             sql_insert = f'INSERT INTO "{table_name}" (CD_OCUP, DS_OCUP, DT_CARGA) VALUES (?, ?, ?)'
             cursor.executemany(sql_insert, dados_para_inserir)
-            cursor.execute('INSERT INTO "{table_name}" (CD_OCUP, DS_OCUP, DT_CARGA) VALUES (-1, "Não Informado", "28-11-1970")')
+            cursor.execute('INSERT INTO DWCD_OCUP (CD_OCUP, DS_OCUP, DT_CARGA) VALUES (-1, "Não Informado", "28-11-1970 00:00")')
             print(f"\n{len(dados_para_inserir)} novos registros inseridos.")
         else:
             print("\nNenhum registro novo para inserir.")

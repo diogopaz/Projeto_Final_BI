@@ -37,6 +37,6 @@ con = sqlite3.connect('DW.db')
 cids.to_sql('DWCD_CIDS', con, if_exists="replace", index=False)
 
 cur = con.cursor()
-cur.execute('INSERT INTO DWCD_MUNICIPIO (SK_CID, CD_CID, CD_CID_LINHA, CD_CID_CAUSA, DS_CID, DT_CARGA) VALUES (-1, -1, -1, -1, "Não Informado", "28-11-1970")')
+cur.execute('INSERT INTO DWCD_CIDS (SK_CID, CD_CID, CD_CID_LINHA, CD_CID_CAUSA, DS_CID, DT_CARGA) VALUES (-1, -1, -1, -1, "Não Informado", "28-11-1970")')
 con.commit()
 con.close()
