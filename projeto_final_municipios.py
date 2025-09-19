@@ -110,6 +110,9 @@ for _, row in ibge_municipio.iterrows():
             DT_CARGA = excluded.DT_CARGA;
     """, tuple(row))
 
+cur.execute("""INSERT INTO DWCD_MUNICIPIO (SK_MUNICIPIO, CD_MUNICIPIO, SK_ESTADO, NM_MUNICIPIO, DT_CARGA)
+        VALUES (-1, -1, -1, "Não Informado", "28-11-1970")""")
+
 con.commit()
 
 con.close()

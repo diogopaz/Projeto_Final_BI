@@ -20,7 +20,7 @@ cids = pd.json_normalize(cids['data'])
 cids['SK_CID'] = range(1, len(cids) + 1)
 cids.rename(columns={
     'codigo': 'CD_CID',
-    'nome': 'NM_CID'
+    'nome': 'DS_CID'
 }, inplace=True)
 
 # Cria campos derivados
@@ -29,10 +29,14 @@ cids.loc[cids['CD_CID_LINHA'].str.len() == 4, 'CD_CID_LINHA'] += 'X'
 cids['CD_CID_CAUSA'] = (cids['CD_CID'].str.replace('.', '', regex=False))
 
 # Reorganiza colunas
-cids = cids[['SK_CID', 'CD_CID', 'CD_CID_LINHA', 'CD_CID_CAUSA', 'NM_CID']]
+cids = cids[['SK_CID', 'CD_CID', 'CD_CID_LINHA', 'CD_CID_CAUSA', 'DS_CID']]
 cids['DT_CARGA'] = datetime.now(br_tz).strftime('%d-%m-%Y %H:%M')
 
 # Salva no banco SQLite
 con = sqlite3.connect('DW.db')
 cids.to_sql('DWCD_CIDS', con, if_exists="replace", index=False)
+
+cur = con.cursor()
+cur.execute('INSERT INTO DWCD_MUNICIPIO (SK_CID, CD_CID, CD_CID_LINHA, CD_CID_CAUSA, DS_CID, DT_CARGA) VALUES (-1, -1, -1, -1, "Não Informado", "28-11-1970")')
+con.commit()
 con.close()
