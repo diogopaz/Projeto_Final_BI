@@ -1,3 +1,7 @@
+import pandas as pd
+from datetime import datetime, timezone, timedelta
+import sqlite3
+
 def carga_manual_racacor(db_path):
 
     dados_racacor = [
