@@ -4,139 +4,135 @@ import sqlite3
 import sys
 import os
 
-# --- PONTO DE ENTRADA DO SCRIPT ---
-if __name__ == "__main__":
-    # 1. VERIFICA SE O ARGUMENTO FOI PASSADO
-    if len(sys.argv) != 2:
-        print("Erro: Forneça o caminho para o arquivo CSV como um argumento.")
-        # Pega o nome do script dinamicamente para a mensagem de uso
-        script_name = os.path.basename(__file__)
-        print(f"Uso: python {script_name} <caminho_do_arquivo.csv>")
-        sys.exit(1)
+def carregar_dimensoes_geograficas(caminho_csv, db_path):
+    """
+    Processa um arquivo CSV do IBGE e carrega as dimensões de Região,
+    Estado e Município em um banco de dados SQLite.
+    """
+    # --- 1. LEITURA E VALIDAÇÃO DO ARQUIVO DE ORIGEM ---
+    try:
+        ibge_municipio = pd.read_csv(caminho_csv, sep=';')
+        # Valida se as colunas esperadas existem
+        colunas_necessarias = [
+            'Nome_UF', 'UF', 'Código Município Completo', 'Nome_Município'
+        ]
+        if not all(col in ibge_municipio.columns for col in colunas_necessarias):
+            print("Erro: O arquivo CSV de entrada não contém as colunas necessárias.")
+            return
+    except FileNotFoundError:
+        print(f"Erro: O arquivo '{caminho_csv}' não foi encontrado.")
+        return
+    except Exception as e:
+        print(f"Erro ao ler o arquivo CSV: {e}")
+        return
 
-    # 2. PEGA O CAMINHO DO ARQUIVO DO ARGUMENTO
-    caminho_csv = sys.argv[1]
+    # --- 2. PREPARAÇÃO DOS DADOS ---
+    br_tz = timezone(timedelta(hours=-3))
+    data_carga = datetime.now(br_tz).strftime('%Y-%m-%d %H:%M:%S')
 
-    # 3. VERIFICA SE O ARQUIVO EXISTE
-    if not os.path.exists(caminho_csv):
-        print(f"Erro: O arquivo '{caminho_csv}' não existe ou o caminho está incorreto.")
-        sys.exit(1)
-
-    # --- O RESTANTE DO SEU CÓDIGO ORIGINAL ---
-    # A única alteração é usar a variável 'caminho_csv'
-    ibge_municipio = pd.read_csv(caminho_csv, sep=';')
-    ibge_estado = ibge_municipio.copy()
-
-    regiao = ['Norte', 'Nordeste', 'Centro-Oeste', 'Sudeste', 'Sul']
+    # DataFrame de Regiões
+    regioes_lista = ['Norte', 'Nordeste', 'Centro-Oeste', 'Sudeste', 'Sul']
+    df_regiao = pd.DataFrame({
+        'SK_REGIAO': range(1, len(regioes_lista) + 1),
+        'NM_REGIAO': regioes_lista,
+        'DT_CARGA': data_carga
+    })
 
     mapa_regiao = {
         "Rondônia": "Norte", "Acre": "Norte", "Amazonas": "Norte", "Roraima": "Norte",
-        "Pará": "Norte", "Amapá": "Norte", "Tocantins": "Norte",
-        "Maranhão": "Nordeste", "Piauí": "Nordeste", "Ceará": "Nordeste", "Rio Grande do Norte": "Nordeste",
-        "Paraíba": "Nordeste", "Pernambuco": "Nordeste", "Alagoas": "Nordeste", "Sergipe": "Nordeste", "Bahia": "Nordeste",
-        "Minas Gerais": "Sudeste", "Espírito Santo": "Sudeste", "Rio de Janeiro": "Sudeste", "São Paulo": "Sudeste",
+        "Pará": "Norte", "Amapá": "Norte", "Tocantins": "Norte", "Maranhão": "Nordeste",
+        "Piauí": "Nordeste", "Ceará": "Nordeste", "Rio Grande do Norte": "Nordeste",
+        "Paraíba": "Nordeste", "Pernambuco": "Nordeste", "Alagoas": "Nordeste",
+        "Sergipe": "Nordeste", "Bahia": "Nordeste", "Minas Gerais": "Sudeste",
+        "Espírito Santo": "Sudeste", "Rio de Janeiro": "Sudeste", "São Paulo": "Sudeste",
         "Paraná": "Sul", "Santa Catarina": "Sul", "Rio Grande do Sul": "Sul",
         "Mato Grosso do Sul": "Centro-Oeste", "Mato Grosso": "Centro-Oeste",
         "Goiás": "Centro-Oeste", "Distrito Federal": "Centro-Oeste"
     }
 
-    br_tz = timezone(timedelta(hours=-3))
+    # DataFrame de Estados
+    df_estado = ibge_municipio[['Nome_UF', 'UF']].drop_duplicates().sort_values('Nome_UF').reset_index(drop=True)
+    df_estado.rename(columns={'Nome_UF': 'NM_ESTADO', 'UF': 'CD_ESTADO'}, inplace=True)
+    df_estado['SK_ESTADO'] = range(1, len(df_estado) + 1)
+    df_estado['NM_REGIAO'] = df_estado['NM_ESTADO'].map(mapa_regiao)
+    df_estado = pd.merge(df_estado, df_regiao[['SK_REGIAO', 'NM_REGIAO']], on='NM_REGIAO', how='left')
+    df_estado['DT_CARGA'] = data_carga
+    df_estado = df_estado[['SK_ESTADO', 'CD_ESTADO', 'NM_ESTADO', 'SK_REGIAO', 'DT_CARGA']]
 
-    ibge_regiao = pd.DataFrame()
-    ibge_regiao['SK_REGIAO'] = range(1, len(regiao) + 1)
-    ibge_regiao['NM_REGIAO'] = regiao
+    # DataFrame de Municípios
+    df_municipio = ibge_municipio.rename(columns={
+        'Código Município Completo': 'CD_MUNICIPIO',
+        'Nome_Município': 'NM_MUNICIPIO',
+        'UF': 'CD_ESTADO'
+    })
+    df_municipio['SK_MUNICIPIO'] = range(1, len(df_municipio) + 1)
+    df_municipio = pd.merge(df_municipio, df_estado[['SK_ESTADO', 'CD_ESTADO']], on='CD_ESTADO', how='left')
+    df_municipio['CD_MUNICIPIO'] = df_municipio['CD_MUNICIPIO'].astype(str).str[:6].astype(int)
+    df_municipio['DT_CARGA'] = data_carga
+    df_municipio = df_municipio[['SK_MUNICIPIO', 'CD_MUNICIPIO', 'SK_ESTADO', 'NM_MUNICIPIO', 'DT_CARGA']]
 
-    ibge_estado.rename(columns={
-        "Nome_UF": "NM_ESTADO",
-        "UF": "CD_ESTADO"
-    }, inplace=True)
+    # --- 3. CARGA NO BANCO DE DADOS ---
+    conn = None
+    try:
+        conn = sqlite3.connect(db_path)
+        cursor = conn.cursor()
 
-    ibge_estado = ibge_estado[["NM_ESTADO", "CD_ESTADO"]]
-    ibge_estado = ibge_estado.drop_duplicates().sort_values("NM_ESTADO").reset_index(drop=True)
+        # Converte DataFrames para listas de tuplas para inserção otimizada
+        dados_regiao = df_regiao.to_records(index=False).tolist()
+        dados_estado = df_estado.to_records(index=False).tolist()
+        dados_municipio = df_municipio.to_records(index=False).tolist()
 
+        # Otimização: Usar executemany em vez de iterar linha a linha
+        sql_regiao = """
+            INSERT INTO DWCD_REGIAO (SK_REGIAO, NM_REGIAO, DT_CARGA) VALUES (?, ?, ?)
+            ON CONFLICT(SK_REGIAO) DO UPDATE SET NM_REGIAO=excluded.NM_REGIAO, DT_CARGA=excluded.DT_CARGA;
+        """
+        cursor.executemany(sql_regiao, dados_regiao)
 
-    ibge_estado["SK_ESTADO"] = range(1, len(ibge_estado) + 1)
+        sql_estado = """
+            INSERT INTO DWCD_ESTADO (SK_ESTADO, CD_ESTADO, NM_ESTADO, SK_REGIAO, DT_CARGA) VALUES (?, ?, ?, ?, ?)
+            ON CONFLICT(SK_ESTADO) DO UPDATE SET CD_ESTADO=excluded.CD_ESTADO, NM_ESTADO=excluded.NM_ESTADO,
+            SK_REGIAO=excluded.SK_REGIAO, DT_CARGA=excluded.DT_CARGA;
+        """
+        cursor.executemany(sql_estado, dados_estado)
 
+        sql_municipio = """
+            INSERT INTO DWCD_MUNICIPIO (SK_MUNICIPIO, CD_MUNICIPIO, SK_ESTADO, NM_MUNICIPIO, DT_CARGA) VALUES (?, ?, ?, ?, ?)
+            ON CONFLICT(SK_MUNICIPIO) DO UPDATE SET CD_MUNICIPIO=excluded.CD_MUNICIPIO, SK_ESTADO=excluded.SK_ESTADO,
+            NM_MUNICIPIO=excluded.NM_MUNICIPIO, DT_CARGA=excluded.DT_CARGA;
+        """
+        cursor.executemany(sql_municipio, dados_municipio)
 
-    ibge_estado["DT_CARGA"] = datetime.now(br_tz).strftime("%d-%m-%Y %H:%M")
+        # Inserção do registro "Não Informado" para cada dimensão
+        cursor.execute("INSERT OR IGNORE INTO DWCD_REGIAO VALUES (-1, 'Não Informado', ?)", (data_carga,))
+        cursor.execute("INSERT OR IGNORE INTO DWCD_ESTADO VALUES (-1, -1, 'Não Informado', -1, ?)", (data_carga,))
+        cursor.execute("INSERT OR IGNORE INTO DWCD_MUNICIPIO VALUES (-1, -1, -1, 'Não Informado', ?)", (data_carga,))
+        
+        conn.commit()
+        print("Carga concluída com sucesso!")
 
-    ibge_estado = ibge_estado[["SK_ESTADO", "CD_ESTADO", "NM_ESTADO", "DT_CARGA"]]
+    except sqlite3.Error as e:
+        print(f"Erro de banco de dados: {e}")
+        if conn:
+            conn.rollback()
+    finally:
+        if conn:
+            conn.close()
 
-    ibge_municipio.rename(columns={
-        "Código Município Completo": "CD_MUNICIPIO",
-        "Nome_Município": "NM_MUNICIPIO",
-        "UF": "CD_ESTADO"
-    }, inplace=True)
+# --- PONTO DE ENTRADA DO SCRIPT ---
+if __name__ == "__main__":
+    # Verifica se o caminho do arquivo foi passado como argumento
+    if len(sys.argv) != 2:
+        print("Erro: Forneça o caminho para o arquivo CSV como um argumento.")
+        print(f"Uso: python {os.path.basename(__file__)} <caminho_do_arquivo.csv>")
+        sys.exit(1)
 
-    ibge_municipio["SK_MUNICIPIO"] = range(1, len(ibge_municipio) + 1)
-
-    ibge_municipio = ibge_municipio.merge(
-        ibge_estado[["SK_ESTADO", "CD_ESTADO"]],
-        on="CD_ESTADO",
-        how="left"
-    )
-
-    ibge_municipio['CD_MUNICIPIO'] = (
-        ibge_municipio['CD_MUNICIPIO']
-        .astype(str)
-        .str[:6]
-        .astype(int)
-    )
-    ibge_municipio["DT_CARGA"] = datetime.now(br_tz).strftime("%d-%m-%Y %H:%M")
-    ibge_municipio = ibge_municipio[[
-        "SK_MUNICIPIO", "CD_MUNICIPIO", "SK_ESTADO", "NM_MUNICIPIO", "DT_CARGA"
-    ]]
-
-    ibge_estado["NM_REGIAO"] = ibge_estado["NM_ESTADO"].map(mapa_regiao)
-
-    ibge_estado = ibge_estado.merge(
-        ibge_regiao,
-        left_on="NM_REGIAO",
-        right_on="NM_REGIAO",
-        how="left"
-    )
-    ibge_regiao["DT_CARGA"] = datetime.now(br_tz).strftime("%d-%m-%Y %H:%M")
-
-    ibge_estado = ibge_estado[["SK_ESTADO", "CD_ESTADO", "NM_ESTADO", "SK_REGIAO", "DT_CARGA"]]
-
-    con = sqlite3.connect('DW.db')
-    cur = con.cursor()
-    for _, row in ibge_regiao.iterrows():
-        cur.execute("""
-            INSERT INTO DWCD_REGIAO (SK_REGIAO, NM_REGIAO, DT_CARGA)
-            VALUES (?, ?, ?)
-            ON CONFLICT(SK_REGIAO) DO UPDATE SET
-                NM_REGIAO = excluded.NM_REGIAO,
-                DT_CARGA = excluded.DT_CARGA;
-        """, tuple(row))
-
-    for _, row in ibge_estado.iterrows():
-        cur.execute("""
-            INSERT INTO DWCD_ESTADO (SK_ESTADO, CD_ESTADO, NM_ESTADO, SK_REGIAO, DT_CARGA)
-            VALUES (?, ?, ?, ?, ?)
-            ON CONFLICT(SK_ESTADO) DO UPDATE SET
-                CD_ESTADO = excluded.CD_ESTADO,
-                NM_ESTADO = excluded.NM_ESTADO,
-                SK_REGIAO = excluded.SK_REGIAO,
-                DT_CARGA = excluded.DT_CARGA;
-        """, tuple(row))
-
-    for _, row in ibge_municipio.iterrows():
-        cur.execute("""
-            INSERT INTO DWCD_MUNICIPIO (SK_MUNICIPIO, CD_MUNICIPIO, SK_ESTADO, NM_MUNICIPIO, DT_CARGA)
-            VALUES (?, ?, ?, ?, ?)
-            ON CONFLICT(SK_MUNICIPIO) DO UPDATE SET
-                CD_MUNICIPIO = excluded.CD_MUNICIPIO,
-                SK_ESTADO = excluded.SK_ESTADO,
-                NM_MUNICIPIO = excluded.NM_MUNICIPIO,
-                DT_CARGA = excluded.DT_CARGA;
-        """, tuple(row))
-
-    cur.execute("""INSERT INTO DWCD_MUNICIPIO (SK_MUNICIPIO, CD_MUNICIPIO, SK_ESTADO, NM_MUNICIPIO, DT_CARGA)
-            VALUES (-1, -1, -1, "Não Informado", "28-11-1970")""")
-
-    con.commit()
-
-    con.close()
+    caminho_do_csv = sys.argv[1]
+    banco_de_dados = 'DW.db'
     
-    print(f"\nCarga a partir do arquivo '{caminho_csv}' concluída com sucesso.")
+    # Verifica se o arquivo realmente existe antes de chamar a função
+    if not os.path.exists(caminho_do_csv):
+        print(f"Erro: O arquivo '{caminho_do_csv}' não existe ou o caminho está incorreto.")
+        sys.exit(1)
+
+    carregar_dimensoes_geograficas(caminho_do_csv, banco_de_dados)
