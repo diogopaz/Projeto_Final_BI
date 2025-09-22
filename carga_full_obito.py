@@ -28,6 +28,8 @@ df = df[[      'TIPOBITO',
                          'LINHAD',
                          'CODMUNRES']]
  
+df['ACIDTRAB'] = df['ACIDTRAB'].fillna(2)
+df['ACIDTRAB'] = df['ACIDTRAB'].replace(9, 2)
 df = df.fillna(-1)
  
 df["DTNASC"] = df["DTNASC"].astype(int)
