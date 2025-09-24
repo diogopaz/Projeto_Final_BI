@@ -104,5 +104,3 @@ Para realizar a carga, basta executar o seguinte comando:
 ```
 
 ---
-
-Quer que eu já gere esse **README.md pronto em Markdown** para você fazer commit direto no GitHub?
