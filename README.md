@@ -54,6 +54,15 @@ Para isso, construímos um **Data Warehouse (DW)** em SQLite e uma **camada mult
 * SQLite para persistência do DW (`DW.db`).
 
 ### ▶️ Execução
+
+
+1. **Clone o repositório**
+  ```bash
+   git clone https://github.com/diogopaz/Projeto_Final_BI.git
+   ```
+2. **Baixe os arquivos necessários para a carga**
+   - Classificação Brasileira de Ocupações: https://www.gov.br/trabalho-e-emprego/pt-br/assuntos/cbo/servicos/downloads/cbo2002-ocupacao.csv
+   - API com os códigos e descrições do CID10 (Classificação Internacional de Doenças): https://cid10.cpp-ti.com.br/api
 Para realizar a carga, basta executar o seguinte comando:
   ```bash
    python carga_final.py
