@@ -2,6 +2,7 @@ import sys
 import pandas as pd
 from datetime import datetime, timezone, timedelta
 import sqlite3
+import hashlib
 
 br_tz = timezone(timedelta(hours=-3))
 
@@ -18,6 +19,19 @@ df = df.fillna(-1)
 
 df["DTNASC"] = df["DTNASC"].astype(int).astype(str).apply(lambda x: x.zfill(8) if x != '-1' else x)
 df["DTOBITO"] = df["DTOBITO"].astype(int).astype(str).apply(lambda x: x.zfill(8) if x != '-1' else x)
+
+def criar_cd_pessoa_hash(row):
+    """
+    Cria uma chave de negócio (CD_PESSOA) única e segura usando um hash MD5 truncado.
+    """
+    colunas_chave = [
+        str(row['RACACOR']), str(row['SEXO']), str(row['DTNASC']),
+        str(row['ESCFALAGR1']), str(row['ESTCIV']), str(row['OCUP']),
+        str(row['CODMUNNATU'])
+    ]
+    string_unica = '|'.join(colunas_chave)
+    hash_completo = hashlib.md5(string_unica.encode('utf-8')).hexdigest()
+    return hash_completo[:16]
 
 def encontrar_causa_terminal(row):
     for col in ['LINHAA', 'LINHAB', 'LINHAC', 'LINHAD']:
@@ -46,9 +60,8 @@ def carga_final(df_raw, db_path):
 
     # --- 2. PROCESSAR E CARREGAR DIMENSÃO PESSOA (INCREMENTAL) ---
     print("Processando dimensão Pessoa...")
-    df_raw['CD_PESSOA'] = df_raw.apply(
-        lambda r: f"{int(r['RACACOR'])}{int(r['SEXO'])}{r['DTNASC']}{int(r['ESCFALAGR1'])}{int(r['ESTCIV'])}{int(r['OCUP'])}{int(r['CODMUNNATU'])}", axis=1
-    )
+    
+    df_raw['CD_PESSOA'] = df_raw.apply(criar_cd_pessoa_hash, axis=1)
     df_pessoa_origem = df_raw[['CD_PESSOA', 'DTNASC', 'SEXO', 'RACACOR', 'ESCFALAGR1', 'ESTCIV', 'CODMUNNATU', 'OCUP']].drop_duplicates()
     
     pessoas_existentes = pd.read_sql('SELECT CD_PESSOA FROM DWCD_PESSOA', conn)
