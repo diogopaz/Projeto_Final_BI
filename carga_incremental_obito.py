@@ -121,6 +121,8 @@ def carga_final(df_raw, db_path):
         df_causa_novas[colunas_causa_dw].rename(columns={'SK_CID_bas': 'SK_CIDBAS', 'SK_CID_term': 'SK_CIDTERM'}).to_sql('DWCD_CAUSAOBITO', conn, if_exists='append', index=False)
         print(f"   -> {len(df_causa_novas)} novas causas inseridas.")
         
+    cursor.execute(f"INSERT OR IGNORE INTO DWCD_CAUSAOBITO (SK_CAUSAOBITO, CD_CAUSAOBITO, SK_CIDBAS, SK_CIDTERM, DT_CARGA) VALUES (-1, -1, -1, -1, '28-11-1970 00:00')")
+    conn.commit()
     # --- 4. MONTAR E CARREGAR TABELA FATO DWMV_OBITO ---
     print("Montando e carregando a tabela Fato...")
     # Ler as dimensões completas para lookup

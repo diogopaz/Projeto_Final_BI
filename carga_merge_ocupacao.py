@@ -68,7 +68,7 @@ def carregar_dados_merge(csv_path, db_path):
         if dados_para_inserir:
             sql_insert = f'INSERT INTO "{table_name}" (CD_OCUP, DS_OCUP, DT_CARGA) VALUES (?, ?, ?)'
             cursor.executemany(sql_insert, dados_para_inserir)
-            cursor.execute('INSERT INTO DWCD_OCUP (CD_OCUP, DS_OCUP, DT_CARGA) VALUES (-1, "Não Informado", "28-11-1970 00:00")')
+            cursor.execute('INSERT INTO DWCD_OCUP (SK_OCUP, CD_OCUP, DS_OCUP, DT_CARGA) VALUES (-1, -1, "Não Informado", "28-11-1970 00:00")')
             print(f"\n{len(dados_para_inserir)} novos registros inseridos.")
         else:
             print("\nNenhum registro novo para inserir.")

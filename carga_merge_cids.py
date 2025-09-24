@@ -104,4 +104,6 @@ except sqlite3.Error as e:
         conn.rollback()
 finally:
     if conn:
+        cursor.execute(f"INSERT OR IGNORE INTO {table_name} (SK_CID, CD_CID, CD_CID_LINHA, CD_CID_CAUSA, DS_CID, DT_CARGA) VALUES (-1, -1, -1, -1, 'Não Informado', '28-11-1970 00:00')")
+        conn.commit()
         conn.close()
