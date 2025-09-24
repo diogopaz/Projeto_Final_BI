@@ -22,7 +22,7 @@ df["DTOBITO"] = df["DTOBITO"].astype(int).astype(str).apply(lambda x: x.zfill(8)
 def encontrar_causa_terminal(row):
     for col in ['LINHAA', 'LINHAB', 'LINHAC', 'LINHAD']:
         if row[col] != -1 and pd.notna(row[col]):
-            return row[col]
+            return f"*{row[col].split('*')[1]}"
     return -1
 
 # --- FUNÇÃO DE CARGA ---
@@ -77,8 +77,17 @@ def carga_final(df_raw, db_path):
 
     # --- 3. PROCESSAR E CARREGAR DIMENSÃO CAUSAOBITO (INCREMENTAL) ---
     print("Processando dimensão Causa do Óbito...")
-    df_raw['CAUSATERMINAL'] = df_raw.apply(encontrar_causa_terminal, axis=1)
-    df_raw['CD_CAUSAOBITO'] = df_raw.apply(lambda r: f"{r['CAUSABAS']}*{r['CAUSATERMINAL']}", axis=1)
+
+    causas_encontradas = df_raw.apply(encontrar_causa_terminal, axis=1)
+
+    df_raw['CAUSATERMINAL'] = causas_encontradas.where(
+    causas_encontradas != -1,
+    df_raw['CAUSABAS'].apply(
+        lambda x: f"*{x}X" if isinstance(x, str) and len(x) == 3 else f"*{x}"
+    )
+)
+
+    df_raw['CD_CAUSAOBITO'] = df_raw.apply(lambda r: f"{r['CAUSABAS']}{r['CAUSATERMINAL']}", axis=1)
     
     df_causa_origem = df_raw[['CD_CAUSAOBITO', 'CAUSABAS', 'CAUSATERMINAL']].drop_duplicates()
     
@@ -127,5 +136,4 @@ def carga_final(df_raw, db_path):
     conn.commit()
     conn.close()
 
-# --- Ponto de Entrada do Script ---
 carga_final(df, 'DW.db')
