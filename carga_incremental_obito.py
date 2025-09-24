@@ -43,7 +43,7 @@ def encontrar_causa_terminal(row):
 def carga_final(df_raw, db_path):
     conn = sqlite3.connect(db_path)
     cursor = conn.cursor()
-    dt_carga = datetime.now(br_tz).strftime('%Y-%m-%d %H:%M:%S')
+    dt_carga = datetime.now(br_tz).strftime('%d-%m-%Y %H:%M')
 
     # 1. LER DIMENSÕES EXISTENTES DO DW
     dims = {

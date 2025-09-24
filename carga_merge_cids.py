@@ -12,7 +12,7 @@ path = sys.argv[1]
 db_path = 'DW.db'
 table_name = 'DWCD_CIDS'
 br_tz = timezone(timedelta(hours=-3))
-data_carga_atual = datetime.now(br_tz).strftime('%Y-%m-%d %H:%M:%S')
+data_carga_atual = datetime.now(br_tz).strftime('%d-%m-%Y %H:%M')
 
 # --- 1. LEITURA E TRANSFORMAÇÃO DA ORIGEM ---
 print("Lendo e tratando dados de origem (JSON)...")
