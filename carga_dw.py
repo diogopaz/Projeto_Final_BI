@@ -14,6 +14,7 @@ subprocess.run(["python", "./cargas_dw/carga_incremental_populacao.py", "./carga
 subprocess.run(["python", "./cargas_dw/carga_incremental_populacao.py", "./cargas_dw/estimativa_dou_2019.xls"], check=True)
 subprocess.run(["python", "./cargas_dw/carga_incremental_populacao.py", "./cargas_dw/estimativa_dou_2020.xls"], check=True)
 subprocess.run(["python", "./cargas_dw/carga_incremental_populacao.py", "./cargas_dw/estimativa_dou_2021.xls"], check=True)
+subprocess.run(["python", "./cargas_dw/carga_incremental_populacao.py", "./cargas_dw/estimativa_dou_2022.xls"], check=True)
 subprocess.run(["python", "./cargas_dw/carga_incremental_populacao.py", "./cargas_dw/estimativa_dou_2024.xls"], check=True)
 subprocess.run(["python", "./cargas_dw/carga_merge_ocupacao.py", "./cargas_dw/cbo2002-ocupacao.csv"], check=True)
 subprocess.run(["python", "./cargas_dw/carga_incremental_obito.py", "./cargas_dw/Mortalidade_Geral_2018.csv"], check=True)
