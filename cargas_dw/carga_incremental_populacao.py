@@ -11,33 +11,40 @@ year_split = parts[-1].split('.')[0]
 br_tz = timezone(timedelta(hours=-3))
 
 def populacao(df, ano):
-  populacao_mun = df.copy()
-  populacao_mun = populacao_mun.dropna()
-  populacao_mun['COD. UF'] = populacao_mun['COD. UF'].astype(int)
-  populacao_mun['COD. UF'] = populacao_mun['COD. UF'].astype(str)
-  populacao_mun['COD. MUNIC'] = populacao_mun['COD. MUNIC'].astype(int)
-  populacao_mun['COD. MUNIC'] = populacao_mun['COD. MUNIC'].astype(str).str.zfill(5)
-  populacao_mun['CD_MUNICIPIO'] = populacao_mun['COD. UF'] + populacao_mun['COD. MUNIC']
-  populacao_mun['CD_MUNICIPIO'] = (
-      populacao_mun['CD_MUNICIPIO']
-      .astype(str)
-      .str[:6]
-      .astype(int)
-  )
-  populacao_mun = populacao_mun.rename(columns={'POPULAÇÃO ESTIMADA': 'QTD_POPULACAO'})
-  populacao_mun['QTD_POPULACAO'] = (
-    populacao_mun['QTD_POPULACAO']
-    .astype(str)
-    .str.split('(').str[0] 
-    .str.replace(r'\.', '', regex=True)
-    .str.strip()
-    .astype(int)
-  )
-  populacao_mun['ANO'] = ano
-  populacao_mun["DT_CARGA"] = datetime.now(br_tz).strftime("%d-%m-%Y %H:%M")
+    populacao_mun = df.copy()
+    populacao_mun = populacao_mun.dropna()
+    populacao_mun['COD. UF'] = populacao_mun['COD. UF'].astype(int).astype(str)
+    populacao_mun['COD. MUNIC'] = populacao_mun['COD. MUNIC'].astype(int).astype(str).str.zfill(5)
+    populacao_mun['CD_MUNICIPIO'] = (
+        (populacao_mun['COD. UF'] + populacao_mun['COD. MUNIC'])
+        .astype(str)
+        .str[:6]
+        .astype(int)
+    )
 
-  populacao_mun_tratado = populacao_mun[['CD_MUNICIPIO', 'ANO', 'QTD_POPULACAO', 'DT_CARGA']]
-  return populacao_mun_tratado
+    for i, valor in enumerate(populacao_mun['POPULAÇÃO ESTIMADA']):
+        if isinstance(valor, str) and "(" in valor:
+            populacao_mun.at[i, 'POPULAÇÃO ESTIMADA'] = valor.split("(")[0].strip()
+
+    populacao_mun = populacao_mun.rename(columns={'POPULAÇÃO ESTIMADA': 'QTD_POPULACAO'})
+
+    
+    def limpa_valor(v):
+        if isinstance(v, (int, float)):  
+            return int(v)
+        v = str(v).strip()
+        v = v.replace(".", "")  
+        v = v.replace(",", ".")  
+        return int(float(v))     
+
+    populacao_mun['QTD_POPULACAO'] = populacao_mun['QTD_POPULACAO'].map(limpa_valor)
+
+    populacao_mun['ANO'] = ano
+    populacao_mun["DT_CARGA"] = datetime.now(br_tz).strftime("%d-%m-%Y %H:%M")
+
+    populacao_mun_tratado = populacao_mun[['CD_MUNICIPIO', 'ANO', 'QTD_POPULACAO', 'DT_CARGA']]
+
+    return populacao_mun_tratado
 
 mun = populacao(populacao_mun, year_split)
 conn = sqlite3.connect(db_path)
