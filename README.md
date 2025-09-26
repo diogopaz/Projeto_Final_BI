@@ -62,7 +62,12 @@ Para isso, construímos um **Data Warehouse (DW)** em SQLite e uma **camada mult
    ```
 2. **Baixe os arquivos necessários para a carga**
    - Classificação Brasileira de Ocupações: https://www.gov.br/trabalho-e-emprego/pt-br/assuntos/cbo/servicos/downloads/cbo2002-ocupacao.csv
-   - API com os códigos e descrições do CID10 (Classificação Internacional de Doenças): https://cid10.cpp-ti.com.br/api
+   - API com os códigos e descrições do CID10 (Classificação Internacional de Doenças): https://cid10.cpp-ti.com.br/api _(baixar a página em .json)_
+   - Arquivos _(.csv)_ com os dados de mortalidade de 2019 a 2024 do SIM (Sistema de Informação sobre Mortalidade): https://dados.gov.br/dados/conjuntos-dados/sim-1979-2019
+   - Arquivos _(estimativa_dou_20XX.xls)_ de estimativa de população de 2019 a 2024 (2022 e 2023 não estão disponíveis) do IBGE: https://www.ibge.gov.br/estatisticas/sociais/populacao/9103-estimativas-de-populacao.html?=&t=downloads
+3. ****
+
+
 Para realizar a carga, basta executar o seguinte comando:
   ```bash
    python carga_final.py
