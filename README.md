@@ -54,8 +54,6 @@ Para isso, construímos um **Data Warehouse (DW)** em SQLite e uma **camada mult
 * SQLite para persistência do DW (`DW.db`).
 
 ### ▶️ Execução
-
-
 1. **Clone o repositório**
   ```bash
    git clone https://github.com/diogopaz/Projeto_Final_BI.git
@@ -63,58 +61,33 @@ Para isso, construímos um **Data Warehouse (DW)** em SQLite e uma **camada mult
 2. **Baixe os arquivos necessários para a carga**
    - Classificação Brasileira de Ocupações: https://www.gov.br/trabalho-e-emprego/pt-br/assuntos/cbo/servicos/downloads/cbo2002-ocupacao.csv
    - API com os códigos e descrições do CID10 (Classificação Internacional de Doenças): https://cid10.cpp-ti.com.br/api _(baixar a página em .json)_
-   - Arquivos _(.csv)_ com os dados de mortalidade de 2019 a 2024 do SIM (Sistema de Informação sobre Mortalidade): https://dados.gov.br/dados/conjuntos-dados/sim-1979-2019
+   - Arquivos _(Mortalidade_Geral_20XX.csv)_ com os dados de mortalidade de 2019 a 2024 do SIM (Sistema de Informação sobre Mortalidade): https://dados.gov.br/dados/conjuntos-dados/sim-1979-2019
    - Arquivos _(estimativa_dou_20XX.xls)_ de estimativa de população de 2019 a 2024 (2022 e 2023 não estão disponíveis) do IBGE: https://www.ibge.gov.br/estatisticas/sociais/populacao/9103-estimativas-de-populacao.html?=&t=downloads
-3. ****
-
-
-Para realizar a carga, basta executar o seguinte comando:
-  ```bash
-   python carga_final.py
-   ```
-*O arquivo carga_final.py executa todas as cargas na ordem correta*
-#### Fluxo realizado pelo arquivo:
-1. **Cria estrutura do DW**
-
+3. **Salve os arquivos baixados na pasta cargas_dw dentro do repositório clonado**
+4. **Execute o script de carga do DW**
    ```bash
-   python create_dw.py
+   python carga_dw.py
    ```
-
-2. **Cargas merge e manuais**
-
+5. **Execute o script de carga do DM**
    ```bash
-   python carga_merge_ocupacao.py dados/ocupacoes.csv      # Códigos da Classificação Brasileira de Ocupações
-   python carga_merge_cids.py dados/cids.json              # CID10 (Classificação Internacional de Doenças)
-   python carga_merge_municipios.py dados/municipios.csv   # Dados de municípios do IBGE
-   python carga_manual_circobito.py
-   python carga_manual_escfal.py
-   python carga_manual_estciv.py
-   python carga_manual_racacor.py
-   python carga_manual_sexo.py
-   python carga_manual_tplocor.py
+   python carga_full_dm.py
    ```
-    *Cargas merge têm como fonte arquivos com os dados necessários, já as manuais foram criadas com os valores disponíveis no Dicionário de Dados do SIM (Sistema de Informação sobre Mortalidade)*
-
-4. **Carga incremental dos óbitos**
-
-   ```bash
-   python carga_incremental_obito.py dados/obitos.csv      # Datasets de cada ano disponíveis no SIM (Sistema de Informação sobre Mortalidade)
-   ```
----
-
 ## 📂 Estrutura do Repositório
 
 ```
-├── create_dw.py               # Criação do DW
-├── carga_merge_cids.py        # Carga merge da dimensão CID
-├── carga_merge_ocupacao.py    # Carga merge da dimensão Ocupação
-├── carga_merge_municipios.py  # Carga merge da dimensão Município
-├── carga_incremental_obito.py # Carga incremental dos óbitos
-├── carga_final.py             # Carga completa
-├── carga_manual_*.py          # Scripts auxiliares de carga manual
-├── DW.db                      # Banco de dados SQLite (gerado)
-├── dados/                     # Arquivos de origem
-└── README.md                  # Documentação do projeto
-```
+├── cargas_dm/                     # Scripts de carga do Data Mart (DM)
+│   ├── carga_dime_*.py            # Cargas das dimensões
+│   ├── carga_fato_*.py            # Cargas das fatos
+│   └── create_dm.py               # Criação do Data Mart
+│
+├── cargas_dw/                     # Scripts de carga do Data Warehouse (DW)
+│   ├── carga_merge_*.py           # Cargas merge
+│   ├── carga_manual_*.py          # Cargas manuais
+│   ├── carga_incremental_*.py     # Cargas incrementais 
+│   └── create_dw.py               # Criação do Data Warehouse
+│
+├── README.md                      # Documentação do projeto
+├── carga_dw.py                    # Script principal de carga do DW
+└── carga_full_dm.py               # Script de carga full do DM
 
----
+```
