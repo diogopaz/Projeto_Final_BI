@@ -76,8 +76,28 @@ def criar_dm():
     conn_dm.commit()
     print("Tabelas criadas com sucesso.")
 
+def truncar_dm():
+    """Remove todos os registros das tabelas do DM (carga full)."""
+    print("Truncando tabelas do Modelo Dimensional...")
+    tabelas = [
+        "FATO_OBITO",
+        "FATO_POPULACAO",
+        "DIME_TEMPO_ANO",
+        "DIME_CIRCOBITO",
+        "DIME_TPLOCOR",
+        "DIME_PESSOA",
+        "DIME_TEMPO_DIA",
+        "DIME_CAUSA",
+        "DIME_LOCAL"
+    ]
+    for tabela in tabelas:
+        cursor_dm.execute(f"DELETE FROM {tabela};")
+    conn_dm.commit()
+    print("Tabelas truncadas com sucesso.")
+
 if __name__ == '__main__':
     try:
+        truncar_dm()
         criar_dm()
     except Exception as e:
         print(f"Ocorreu um erro: {e}")
