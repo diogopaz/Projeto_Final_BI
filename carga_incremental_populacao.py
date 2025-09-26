@@ -25,8 +25,14 @@ def populacao(df, ano):
       .astype(int)
   )
   populacao_mun = populacao_mun.rename(columns={'POPULAÇÃO ESTIMADA': 'QTD_POPULACAO'})
-  populacao_mun['QTD_POPULACAO'] = populacao_mun['QTD_POPULACAO'].astype(str).str.replace(r'[^0-9]', '', regex=True)
-  populacao_mun['QTD_POPULACAO'] = populacao_mun['QTD_POPULACAO'].astype(int)
+  populacao_mun['QTD_POPULACAO'] = (
+    populacao_mun['QTD_POPULACAO']
+    .astype(str)
+    .str.split('(').str[0] 
+    .str.replace(r'\.', '', regex=True)
+    .str.strip()
+    .astype(int)
+  )
   populacao_mun['ANO'] = ano
   populacao_mun["DT_CARGA"] = datetime.now(br_tz).strftime("%d-%m-%Y %H:%M")
 
