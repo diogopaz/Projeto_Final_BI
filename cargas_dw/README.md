@@ -1,28 +1,51 @@
-#### Fluxo realizado pelo arquivo:
-1. **Cria estrutura do DW**
+## Fluxo realizado pelo script carga_dw:
 
-   ```bash
-   python create_dw.py
-   ```
+1.  **Criação da estrutura do DW**
 
-2. **Cargas merge e manuais**
+    ``` bash
+    python create_dw.py
+    ```
 
-   ```bash
-   python carga_merge_ocupacao.py dados/ocupacoes.csv      # Códigos da Classificação Brasileira de Ocupações
-   python carga_merge_cids.py dados/cids.json              # CID10 (Classificação Internacional de Doenças)
-   python carga_merge_municipios.py dados/municipios.csv   # Dados de municípios do IBGE
-   python carga_manual_circobito.py
-   python carga_manual_escfal.py
-   python carga_manual_estciv.py
-   python carga_manual_racacor.py
-   python carga_manual_sexo.py
-   python carga_manual_tplocor.py
-   ```
-    *Cargas merge têm como fonte arquivos com os dados necessários, já as manuais foram criadas com os valores disponíveis no Dicionário de Dados do SIM (Sistema de Informação sobre Mortalidade)*
+2.  **Cargas manuais das dimensões**\
+    (valores fixos definidos a partir do Dicionário de Dados do SIM)
 
-4. **Carga incremental dos óbitos**
+    ``` bash
+    python carga_manual_circobito.py    # Circunstância do Óbito
+    python carga_manual_escfal.py       # Escolaridade
+    python carga_manual_estcivil.py     # Estado Civil
+    python carga_manual_racacor.py      # Raça/Cor
+    python carga_manual_sexo.py         # Sexo
+    python carga_manual_tplocor.py      # Tipo do Local de Ocorrência
+    ```
 
-   ```bash
-   python carga_incremental_obito.py dados/obitos.csv      # Datasets de cada ano disponíveis no SIM (Sistema de Informação sobre Mortalidade)
-   ```
----
+3.  **Cargas merge de dimensões**\
+    (integração com arquivos externos: CBO, CID10 e IBGE)
+
+    ``` bash
+    python carga_merge_cids.py ./cid.json                   # CID10 (Classificação Internacional de Doenças)
+    python carga_merge_municipios.py ./Municipios_IBGE.csv  # Municípios do IBGE
+    python carga_merge_ocupacao.py ./cbo2002_ocupacao.csv   # Códigos da Classificação Brasileira de Ocupações
+    ```
+
+4.  **Carga full dos óbitos (fato principal)**\
+    (datasets anuais do SIM -- Sistema de Informação sobre Mortalidade)
+
+    ``` bash
+    python carga_full_obito.py ./Mortalidade_Geral_2018.csv
+    python carga_full_obito.py ./Mortalidade_Geral_2019.csv
+    python carga_full_obito.py ./Mortalidade_Geral_2020.csv
+    python carga_full_obito.py ./Mortalidade_Geral_2021.csv
+    python carga_full_obito.py ./Mortalidade_Geral_2022.csv
+    python carga_full_obito.py ./Mortalidade_Geral_2023.csv
+    python carga_full_obito.py ./Mortalidade_Geral_2024.csv
+    ```
+
+------------------------------------------------------------------------
+
+Esse fluxo garante que:
+- O **DW é criado** com a estrutura correta.
+- As **dimensões manuais** são preenchidas com os valores fixos.
+- As **dimensões externas** são carregadas via merge com dados oficiais
+(CID, IBGE, CBO).
+- Finalmente, os **óbitos** de cada ano são carregados na tabela fato,
+permitindo análises históricas.
