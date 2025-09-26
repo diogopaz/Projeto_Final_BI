@@ -63,6 +63,7 @@ Para isso, construímos um **Data Warehouse (DW)** em SQLite e uma **camada mult
    - API com os códigos e descrições do CID10 (Classificação Internacional de Doenças): https://cid10.cpp-ti.com.br/api _(baixar a página em .json)_
    - Arquivos _(Mortalidade_Geral_20XX.csv)_ com os dados de mortalidade de 2019 a 2024 do SIM (Sistema de Informação sobre Mortalidade): https://dados.gov.br/dados/conjuntos-dados/sim-1979-2019
    - Arquivos _(estimativa_dou_20XX.xls)_ de estimativa de população de 2019 a 2024 (2022 e 2023 não estão disponíveis) do IBGE: https://www.ibge.gov.br/estatisticas/sociais/populacao/9103-estimativas-de-populacao.html?=&t=downloads
+   - Arquivo de municípios brasileiros _(municipios.csv)_: https://github.com/kelvins/municipios-brasileiros/blob/main/csv/municipios.csv
 3. **Salve os arquivos baixados na pasta cargas_dw dentro do repositório clonado**
 4. **Execute o script de carga do DW**
    ```bash
