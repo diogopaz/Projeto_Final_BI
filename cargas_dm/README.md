@@ -1,4 +1,4 @@
-#### Fluxo realizado pelo script carga_full_dm:
+## Fluxo realizado pelo script carga_full_dm:
 
 1.  **Criação da estrutura do DM**
 
