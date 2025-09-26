@@ -5,7 +5,12 @@ import sqlite3
 
 filename = sys.argv[1]
 db_path = 'DW.db'
-populacao_mun = pd.read_excel(filename, sheet_name=1,  header=1)
+xls = pd.ExcelFile(filename)
+num_planilhas = len(xls.sheet_names)
+if num_planilhas == 1:
+    populacao_mun = pd.read_excel(filename, sheet_name=0,  header=1)
+else:
+    populacao_mun = pd.read_excel(filename, sheet_name=1,  header=1)
 parts = filename.split('_')
 year_split = parts[-1].split('.')[0]
 br_tz = timezone(timedelta(hours=-3))
