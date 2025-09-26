@@ -97,8 +97,8 @@ def truncar_dm():
 
 if __name__ == '__main__':
     try:
-        truncar_dm()
         criar_dm()
+        truncar_dm()
     except Exception as e:
         print(f"Ocorreu um erro: {e}")
     finally:
