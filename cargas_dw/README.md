@@ -26,18 +26,29 @@
     python cargas_dw/carga_merge_municipios.py ./Municipios_IBGE.csv  # Municípios do IBGE
     python cargas_dw/carga_merge_ocupacao.py ./cbo2002_ocupacao.csv   # Códigos da Classificação Brasileira de Ocupações
     ```
+    
+4. **Carga incremental das populações**
+    ``` bash
+    python cargas_dw/carga_incremental_populacao.py cargas_dw/estimativa_dou_2018.xls
+    python cargas_dw/carga_incremental_populacao.py cargas_dw/estimativa_dou_2019.xls
+    python cargas_dw/carga_incremental_populacao.py cargas_dw/estimativa_dou_2020.xls
+    python cargas_dw/carga_incremental_populacao.py cargas_dw/estimativa_dou_2021.xls
+    python cargas_dw/carga_incremental_populacao.py cargas_dw/estimativa_dou_2022.xls
+    python cargas_dw/carga_incremental_populacao.py cargas_dw/estimativa_dou_2024.xls
+    ```
 
-4.  **Carga full dos óbitos (fato principal)**\
-    (datasets anuais do SIM -- Sistema de Informação sobre Mortalidade)
+
+5.  **Carga incremental dos óbitos (fato principal)**\
+    (datasets anuais do SIM - Sistema de Informação sobre Mortalidade)
 
     ``` bash
-    python cargas_dw/carga_full_obito.py cargas_dw/Mortalidade_Geral_2018.csv
-    python cargas_dw/carga_full_obito.py cargas_dw/Mortalidade_Geral_2019.csv
-    python cargas_dw/carga_full_obito.py cargas_dw/Mortalidade_Geral_2020.csv
-    python cargas_dw/carga_full_obito.py cargas_dw/Mortalidade_Geral_2021.csv
-    python cargas_dw/carga_full_obito.py cargas_dw/Mortalidade_Geral_2022.csv
-    python cargas_dw/carga_full_obito.py cargas_dw/Mortalidade_Geral_2023.csv
-    python cargas_dw/carga_full_obito.py cargas_dw/Mortalidade_Geral_2024.csv
+    python cargas_dw/carga_incremental_obito.py cargas_dw/Mortalidade_Geral_2018.csv
+    python cargas_dw/carga_incremental_obito.py cargas_dw/Mortalidade_Geral_2019.csv
+    python cargas_dw/carga_incremental_obito.py cargas_dw/Mortalidade_Geral_2020.csv
+    python cargas_dw/carga_incremental_obito.py cargas_dw/Mortalidade_Geral_2021.csv
+    python cargas_dw/carga_incremental_obito.py cargas_dw/Mortalidade_Geral_2022.csv
+    python cargas_dw/carga_incremental_obito.py cargas_dw/Mortalidade_Geral_2023.csv
+    python cargas_dw/carga_incremental_obito.py cargas_dw/Mortalidade_Geral_2024.csv
     ```
 
 ------------------------------------------------------------------------
