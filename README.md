@@ -50,8 +50,8 @@ Para isso, construímos um **Data Warehouse (DW)** em SQLite e uma **camada mult
   ```bash
   pip install pandas
   ```
-* Arquivos de origem (CIDs em JSON, municípios/ocupações em CSV, óbitos em CSV).
-* SQLite para persistência do DW (`DW.db`).
+* Arquivos de origem (CIDs em JSON, municípios/ocupações em CSV, óbitos em CSV, populações em XLS).
+* SQLite para persistência do Data Warehouse (`DW.db`) e Data Mart (`DM.db`).
 
 ### ▶️ Execução
 1. **Clone o repositório**
