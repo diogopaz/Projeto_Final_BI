@@ -82,9 +82,9 @@ Para isso, construímos um **Data Warehouse (DW)** em SQLite e uma **camada mult
 │   └── create_dm.py               # Criação do Data Mart
 │
 ├── cargas_dw/                     # Scripts de carga do Data Warehouse (DW)
-│   ├── carga_merge_*.py           # Cargas merge
-│   ├── carga_manual_*.py          # Cargas manuais
-│   ├── carga_incremental_*.py     # Cargas incrementais 
+│   ├── carga_incremental_*.py     # Cargas incrementais (Óbitos, Estimativas de População)
+│   ├── carga_merge_*.py           # Cargas merge (CIDs, Municípios e Ocupações)
+│   ├── carga_manual_*.py          # Cargas manuais (Campos com valores de domínio)
 │   └── create_dw.py               # Criação do Data Warehouse
 │
 ├── README.md                      # Documentação do projeto
