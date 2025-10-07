@@ -76,7 +76,7 @@ def carregar_dimensoes_geograficas(caminho_csv_ibge, caminho_csv_municipios, db_
         cidade = df_municipios[df_municipios['codigo_ibge'] == cd_municipio]
         if cidade.empty:
             return 0
-        return cidade['capital'].values[0] == 1
+        return int(cidade['capital'].values[0] == 1)
 
     ibge_municipio['ST_CAPITAL'] = ibge_municipio['CD_MUNICIPIO'].apply(is_capital)
     ibge_municipio["DT_CARGA"] = data_carga
