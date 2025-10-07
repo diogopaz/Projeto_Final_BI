@@ -63,6 +63,7 @@ def carregar_dimensoes_geograficas(caminho_csv_ibge, caminho_csv_municipios, db_
     })
     ibge_municipio["SK_MUNICIPIO"] = range(1, len(ibge_municipio) + 1)
     ibge_municipio["CD_MUNICIPIO"] = ibge_municipio["CD_MUNICIPIO"].astype(str).str[:6].astype(int)
+    df_municipios['codigo_ibge'] = df_municipios['codigo_ibge'].astype(str).str[:6].astype(int)
 
     ibge_municipio = ibge_municipio.merge(
         df_estado[["SK_ESTADO", "CD_ESTADO"]],
@@ -71,13 +72,13 @@ def carregar_dimensoes_geograficas(caminho_csv_ibge, caminho_csv_municipios, db_
     )
 
     # Função para identificar capital
-    def is_capital(nome_cidade):
-        cidade = df_municipios[df_municipios["nome"].str.upper() == nome_cidade.upper()]
+    def is_capital(cd_municipio):
+        cidade = df_municipios[df_municipios['codigo_ibge'] == cd_municipio]
         if cidade.empty:
             return 0
-        return 1 if cidade["capital"].values[0] == 1 else 0
+        return cidade['capital'].values[0] == 1
 
-    ibge_municipio["ST_CAPITAL"] = ibge_municipio["NM_MUNICIPIO"].apply(is_capital)
+    ibge_municipio['ST_CAPITAL'] = ibge_municipio['CD_MUNICIPIO'].apply(is_capital)
     ibge_municipio["DT_CARGA"] = data_carga
 
     df_municipio = ibge_municipio[[
