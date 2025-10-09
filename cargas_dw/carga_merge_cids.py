@@ -17,18 +17,16 @@ data_carga_atual = datetime.now(br_tz).strftime('%d-%m-%Y %H:%M')
 # --- 1. LEITURA E TRANSFORMAÇÃO DA ORIGEM ---
 print("Lendo e tratando dados de origem (JSON)...")
 try:
-    df_origem = pd.read_json(path)
-    df_origem = pd.json_normalize(df_origem['data'])
-    
+    df_origem = pd.read_csv(path, sep=';', encoding='latin-1')
+
     # Renomeia colunas
     df_origem.rename(columns={
-        'codigo': 'CD_CID',
-        'nome': 'DS_CID'
+        'CAT': 'CD_CID',
+        'DESCRICAO': 'DS_CID'
     }, inplace=True)
 
     # Cria campos derivados (sua lógica original)
     df_origem['CD_CID_LINHA'] = ('*' + df_origem['CD_CID'].str.replace('.', '', regex=False))
-    df_origem.loc[df_origem['CD_CID_LINHA'].str.len() == 4, 'CD_CID_LINHA'] += 'X'
     df_origem['CD_CID_CAUSA'] = (df_origem['CD_CID'].str.replace('.', '', regex=False))
     
     # Adiciona data de carga e seleciona colunas
