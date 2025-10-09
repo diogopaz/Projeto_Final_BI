@@ -60,7 +60,7 @@ Para isso, construímos um **Data Warehouse (DW)** em SQLite e uma **camada mult
    ```
 2. **Baixe os arquivos necessários para a carga**
    - Classificação Brasileira de Ocupações: https://www.gov.br/trabalho-e-emprego/pt-br/assuntos/cbo/servicos/downloads/cbo2002-ocupacao.csv
-   - CID10 (Classificação Internacional de Doenças): http://www2.datasus.gov.br/cid10/V2008/cid10.htm (utilizar arquivos em formato csv, ao baixar o arquivo .zip, extrair e utilizar o csv CID-10-CATEGORIAS)
+   - CID10 (Classificação Internacional de Doenças): http://www2.datasus.gov.br/cid10/V2008/descrcsv.htm (baixar o arquivo CID10CSV.ZIP, extrair e utilizar o csv CID-10-CATEGORIAS.CSV)
    - Arquivos _(Mortalidade_Geral_20XX.csv)_ com os dados de mortalidade de 2019 a 2024 do SIM (Sistema de Informação sobre Mortalidade): https://dados.gov.br/dados/conjuntos-dados/sim-1979-2019
    - Arquivos _(estimativa_dou_20XX.xls)_ de estimativa de população de 2019 a 2024 (2022 e 2023 não estão disponíveis) do IBGE: https://www.ibge.gov.br/estatisticas/sociais/populacao/9103-estimativas-de-populacao.html?=&t=downloads
    - Arquivo de municípios brasileiros _(municipios.csv)_: https://github.com/kelvins/municipios-brasileiros/blob/main/csv/municipios.csv
