@@ -94,11 +94,13 @@ def carga_final(df_raw, db_path):
     causas_encontradas = df_raw.apply(encontrar_causa_terminal, axis=1)
 
     df_raw['CAUSATERMINAL'] = causas_encontradas.where(
-    causas_encontradas != -1,
-    df_raw['CAUSABAS'].apply(
-        lambda x: f"*{x}X" if isinstance(x, str) and len(x) == 3 else f"*{x}"
-    )
-)
+      causas_encontradas != -1,
+      df_raw['CAUSABAS'].apply(
+          lambda x: f"*{x}X" if isinstance(x, str) and len(x) == 3 else f"*{x}"
+    ))
+
+    df_raw['CAUSATERMINAL'] = df_raw['CAUSATERMINAL'].apply(lambda x : x[:4])
+    df_raw['CAUSABAS'] = df_raw['CAUSABAS'].apply(lambda x : x[:3])
 
     df_raw['CD_CAUSAOBITO'] = df_raw.apply(lambda r: f"{r['CAUSABAS']}{r['CAUSATERMINAL']}", axis=1)
     
