@@ -5,7 +5,7 @@ import sys
 
 # Pega o caminho do JSON passado no terminal
 if len(sys.argv) < 2:
-    print("Uso: python script.py caminho/do/arquivo.json")
+    print("Uso: python script.py caminho/do/arquivo.csv")
     sys.exit(1)
 
 path = sys.argv[1]
